@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+
+# Secrets and OAuth tokens (DO NOT COMMIT)
+config/token.json
+config/client_secrets.json
+
+# Local runtime logs and output
+logs/*.log
+output/posted_comments.json
+output/report.csv
+test_output*/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo

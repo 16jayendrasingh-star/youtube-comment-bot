@@ -1,0 +1,36 @@
+# YouTube Auto Video Comment Bot - Configuration
+# ================================================
+
+# YouTube Data API v3 Configuration
+youtube_api:
+  # Your YouTube Data API v3 key (for reading video info)
+  api_key: "YOUR_API_KEY_HERE"
+  
+  # Path to OAuth 2.0 client secrets JSON file (for posting comments)
+  # Download from Google Cloud Console > APIs & Credentials > OAuth 2.0 Client IDs
+  client_secrets_file: "config/client_secrets.json"
+  
+  # OAuth token storage path (auto-generated after first login)
+  token_file: "config/token.json"
+  
+  # API scopes required
+  scopes:
+    - "https://www.googleapis.com/auth/youtube.force-ssl"
+
+# Rate Limiting (YouTube API compliant)
+rate_limits:
+  # Minimum seconds between comment submissions
+  min_delay_between_comments: 30
+  
+  # Maximum comments per session (safety limit)
+  max_comments_per_session: 50
+
+# Logging
+logging:
+  log_file: "logs/activity.log"
+  log_level: "INFO"
+
+# Output
+output:
+  posted_comments_file: "output/posted_comments.json"
+  report_file: "output/report.csv"
