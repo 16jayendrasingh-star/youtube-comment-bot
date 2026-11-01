@@ -57,12 +57,13 @@ Available Commands:
   auth              Authenticate with YouTube (OAuth 2.0)
 
   add               Draft a new comment (multi-line supported)
+  load <file.txt>   Load multiple comments from a text file (one per line)
   suggest [tone] [topic]  Get natural comment suggestions
   tones             Show available comment tones
   queue             Show all comments in the queue
   view <ID>         View full text of a comment
   edit <ID>         Edit a pending comment
-  approve <ID>      Approve a pending comment
+  approve <ID>/all  Approve a comment (or 'approve all' for the batch)
   reject <ID>       Reject a pending comment
 
   submit            Submit all approved comments to YouTube
@@ -230,6 +231,32 @@ def main():
             except RuntimeError as e:
                 print_error(str(e))
 
+        elif command in ("load", "import"):
+            if not bot.video_manager.is_set:
+                print_error("Set a target video first: video <URL>")
+                continue
+            if not arg:
+                print_error("Usage: load <path/to/comments.txt>")
+                continue
+            filepath = os.path.expanduser(arg)
+            if not os.path.exists(filepath):
+                print_error(f"File not found: {filepath}")
+                continue
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    lines = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+                if not lines:
+                    print_warning(f"No comments found in {filepath}.")
+                    continue
+                added_count = 0
+                for line in lines:
+                    bot.add_comment(line)
+                    added_count += 1
+                print_success(f"Added {added_count} comments from '{filepath}' to queue (status: pending).")
+                print("  -> Use 'queue' to inspect comments, or 'approve all' to approve the batch.")
+            except Exception as e:
+                print_error(f"Failed to load comments from file: {e}")
+
         elif command == "queue":
             print(safe_str(bot.get_queue_display()))
 
@@ -338,8 +365,20 @@ def main():
         # ── Review commands ────────────────────────────────────────────────
 
         elif command == "approve":
-            if not arg or not arg.isdigit():
-                print_error("Usage: approve <comment ID>")
+            if not arg:
+                print_error("Usage: approve <comment ID> or approve all")
+                continue
+            if arg.lower() == "all":
+                pending = bot.comment_queue.get_pending()
+                if not pending:
+                    print_warning("No pending comments to approve.")
+                    continue
+                for c in pending:
+                    bot.approve_comment(c.id)
+                print_success(f"Approved all {len(pending)} pending comment(s)!")
+                continue
+            if not arg.isdigit():
+                print_error("Usage: approve <comment ID> or approve all")
                 continue
             try:
                 result = bot.approve_comment(int(arg))
